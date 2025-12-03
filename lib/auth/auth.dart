@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:love_notes/model/firestore_user.dart';
-import 'package:love_notes/pages/admin_page.dart';
 import 'package:love_notes/pages/home_page.dart';
-import 'package:love_notes/pages/login_or_signup.dart';
+import 'package:love_notes/pages/login_page.dart';
+// import 'package:love_notes/pages/login_or_signup.dart';
 
 class Auth extends StatelessWidget {
   const Auth({super.key});
@@ -26,11 +26,7 @@ class Auth extends StatelessWidget {
                     return const CircularProgressIndicator();
                   } else {
                     if (userDataSnapshot.hasData) {
-                      if (userDataSnapshot.data!.role == 'admin') {
-                        return AdminPage(user: userDataSnapshot.data!);
-                      } else {
-                        return HomePage(user: userDataSnapshot.data!);
-                      }
+                        return const HomePage(); // user: userDataSnapshot.data!
                     } else {
                       // Handle error or show loading indicator
                       return const Text('Error retrieving user data');
@@ -38,9 +34,11 @@ class Auth extends StatelessWidget {
                   }
                 },
               );
-            } else {
-              return const LoginOrSignup();
-            }
+            } 
+            // else {
+            //   return const LoginOrSignup();
+            // }
+            return const LoginPage();
           }
         } 
       ),
