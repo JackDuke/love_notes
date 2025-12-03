@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "400144539696",
+    "project_id": "love-notes-8e5a0",
+    "storage_bucket": "love-notes-8e5a0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:400144539696:android:50c93f35206d4757a90df5",
+        "android_client_info": {
+          "package_name": "com.example.love_notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsWXmZTRMR4GWxVgKo_23FP-t2ZViH2H4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
