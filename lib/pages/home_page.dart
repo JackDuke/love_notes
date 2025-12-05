@@ -1,4 +1,4 @@
-import 'dart:math';
+// import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,33 +16,51 @@ class _HomePageState extends State<HomePage> {
   final CollectionReference notesCollection = FirebaseFirestore.instance.collection('notes');
   final TextEditingController _controller = TextEditingController();
   
-  String _welcomeMessage = "";
+  // String _welcomeMessage = "";
 
   // Database locale di frasi carine (poi potremo spostarlo su Firebase)
-  final List<String> _frasiCarine = [
-    "Oggi ti trovo meravigliosa/o!",
-    "Ricordati che sei speciale.",
-    "Non vedo l'ora di vederti.",
-    "Sei il mio pensiero preferito.",
-    "Grazie di esserci."
-  ];
+  // final List<String> _frasiCarine = [
+  //   "Oggi ti trovo meravigliosa/o!",
+  //   "Ricordati che sei speciale.",
+  //   "Non vedo l'ora di vederti.",
+  //   "Sei il mio pensiero preferito.",
+  //   "Grazie di esserci."
+  // ];
 
   @override
   void initState() {
     super.initState();
-    // Logica per scegliere una frase random all'avvio
-    _welcomeMessage = _frasiCarine[Random().nextInt(_frasiCarine.length)];
-    
-    // Mostriamo la frase con un piccolo ritardo o in un dialog (qui uso un SnackBar dopo il build)
+    // Eseguiamo dopo che la UI è stata costruita
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("❤️ $_welcomeMessage"),
-          backgroundColor: Colors.pinkAccent,
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      _mostraFraseDelGiorno();
     });
+  }
+
+  void _mostraFraseDelGiorno() {
+    final List<String> frasi = [
+      "Sei il mio notifiche preferito 🔔",
+      "Oggi ti amo più di ieri (ma meno di domani) ❤️",
+      "Ricordati di sorridere!",
+      "Sei la mia persona.", 
+      "Non vedo l'ora di abbracciarti."
+    ];
+    
+    // Scegli una frase a caso
+    String fraseScelta = frasi[DateTime.now().second % frasi.length]; // Random semplice
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Ciao Amore! 👋"),
+        content: Text(fraseScelta, style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Grazie ❤️"),
+          )
+        ],
+      ),
+    );
   }
 
   String _getNomeUtente() {
@@ -118,13 +136,54 @@ class _HomePageState extends State<HomePage> {
             itemCount: data.size,
             itemBuilder: (context, index) {
               var nota = data.docs[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: ListTile(
-                  title: Text(nota['testo']),
-                  // Formattazione data semplice
-                  subtitle: Text(nota['data'].toDate().toString().substring(0, 16)), 
-                  leading: const Icon(Icons.favorite, color: Colors.redAccent),
+              bool sonoIo = nota['uid'] == FirebaseAuth.instance.currentUser?.uid;
+
+              String orarioFormattato = "";
+              if (nota['data'] != null) {
+                DateTime data = (nota['data'] as Timestamp).toDate();
+                // padLeft(2, '0') serve per trasformare "9:5" in "09:05"
+                orarioFormattato = " • ${data.hour}:${data.minute.toString().padLeft(2, '0')}";
+              }
+
+              return Align(
+                alignment: sonoIo ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.75, // Occupa il 75% della larghezza
+                  margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Card(
+                    color: sonoIo ? Colors.pink[100] : Colors.white, // Colori diversi
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(12),
+                        topRight: const Radius.circular(12),
+                        bottomLeft: sonoIo ? const Radius.circular(12) : Radius.zero,
+                        bottomRight: sonoIo ? Radius.zero : const Radius.circular(12),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            nota['testo'],
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "${nota['autore']}$orarioFormattato", // Molto più pulito!
+                                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               );
             },
