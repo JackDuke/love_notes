@@ -198,32 +198,16 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
+      print('Click login...');
       await _authService.signInWithEmailPassword(
         email: _email.text,
         password: _pass.text,
       );
+      print('Login returned OK');
     } on AuthFailure catch (e) {
-      setState(() => _err = e.message);
-    } finally {
-      if (mounted) {
-        setState(() => _loadingEmail = false);
-      }
-    }
-  }
-
-  Future<void> _signUp() async {
-    setState(() {
-      _loadingEmail = true;
-      _err = null;
-    });
-
-    try {
-      await _authService.signUpWithEmailPassword(
-        email: _email.text,
-        password: _pass.text,
-      );
-    } on AuthFailure catch (e) {
-      setState(() => _err = e.message);
+      setState(() => _err = '${e.code}: ${e.message}');
+    } catch (e) {
+      setState(() => _err = e.toString());
     } finally {
       if (mounted) {
         setState(() => _loadingEmail = false);
@@ -310,13 +294,6 @@ class _LoginPageState extends State<LoginPage> {
                             : const Text('Login'),
                       ),
                     ),
-                    // const SizedBox(width: 12),
-                    // Expanded(
-                    //   child: OutlinedButton(
-                    //     onPressed: _loadingEmail ? null : _signUp,
-                    //     child: const Text('Registrati'),
-                    //   ),
-                    // ),
                   ],
                 ),
                 const SizedBox(height: 16),

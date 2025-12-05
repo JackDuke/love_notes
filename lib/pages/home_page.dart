@@ -1,209 +1,16 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// // import 'package:intl/intl.dart';
-// import 'package:love_notes/custom/custom_alert_dialog.dart';
-// import 'package:love_notes/model/firestore_user.dart';
-// // import 'package:love_notes/model/lesson.dart';
-// // import 'package:love_notes/services/lesson_service.dart';
-
-// // import 'package:timezone/data/latest.dart' as tz;
-// // import 'package:timezone/timezone.dart' as tz;
-
-// class HomePage extends StatefulWidget {
-//   final FirestoreUser user;
-//   const HomePage({
-//     required this.user,
-//     super.key
-//   });
-
-//   @override
-//   State<HomePage> createState() => _HomePageState();
-// }
-
-// class _HomePageState extends State<HomePage> {
-//   // Lista filtrata degli utenti
-//   // List<Note> notes = [];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     // tz.initializeTimeZones();
-//     fetchNotes();
-//   }
-
-//   void fetchNotes() async {
-//     // final fetchedNotes = await NoteService().getNotes(widget.user.userId);
-
-//     // if (mounted) {
-//     //   setState(() {
-//     //     notes = fetchedNotes;
-//     //   });
-//     // }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       // drawer: const Drawer(),
-//       body: SafeArea(
-//         child: Padding(
-//           padding: const EdgeInsets.all(24.0),
-//           child: Column(
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Text(
-//                     'Ciao ${widget.user.name}!', 
-//                     style: const TextStyle(
-//                       fontSize: 20,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.white
-//                     ),
-//                   ),
-//                   Container(
-//                     decoration: BoxDecoration(
-//                       color: Colors.grey[900],
-//                       borderRadius: BorderRadius.circular(12)
-//                     ),
-//                     child: IconButton(
-//                       icon: const Icon(
-//                         Icons.logout_rounded, 
-//                         color: Colors.white,
-//                       ), 
-//                       onPressed: () => showDialog<String>(
-//                         context: context,
-//                         builder: (BuildContext context) => CustomAlertDialog(
-//                           title: 'Logout',
-//                           message: 'Sei sicuro di voler effettuare il logout?',
-//                           onPressed: () {
-//                             if (mounted) {
-//                               FirebaseAuth.instance.signOut();
-//                               Navigator.pop(context, 'Sì');
-//                             }
-//                           },
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 24),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Expanded(
-//                     child: Container(
-//                       padding: const EdgeInsets.all(12),
-//                       decoration: BoxDecoration(
-//                         color: const Color.fromARGB(255, 101, 10, 10),
-//                         borderRadius: BorderRadius.circular(20),
-//                       ),
-//                       child: const Column(
-//                         crossAxisAlignment: CrossAxisAlignment.center,
-//                         children: [
-//                           Text(
-//                             '', //${lessons.length}
-//                             style: TextStyle(
-//                               fontSize: 48,
-//                               fontWeight: FontWeight.bold,
-//                               color: Colors.white,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                   const SizedBox(width: 120),
-//                   const Flexible(
-//                     child: Text(
-//                       'Lezioni usate',
-//                       textAlign: TextAlign.right,
-//                       style: TextStyle(
-//                         fontSize: 24,
-//                         fontWeight: FontWeight.bold,
-//                         color: Colors.white,
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-
-//               const SizedBox(height: 50),
-//               // Upcoming trainings section
-//               const Row(
-//                 mainAxisAlignment: MainAxisAlignment.start,
-//                 children: [
-//                   Text(
-//                     'Storico lezioni',
-//                     style: TextStyle(
-//                       fontSize: 20,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.white
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 24),
-//               ListView.builder(
-//                 shrinkWrap: true,
-//                 physics: const NeverScrollableScrollPhysics(),
-//                 // itemCount: lessons.length,
-//                 itemBuilder: (context, index) {
-//                   // final lesson = lessons[index];
-                  
-//                   // final romeTimeZone = tz.getLocation('Europe/Rome');
-//                   // final romeDate = tz.TZDateTime.from(lesson.date, romeTimeZone);
-                  
-//                   // final formattedDate = DateFormat('dd/MM/yyyy').format(romeDate);
-
-//                   return Card(
-//                     color: Colors.grey[900],
-//                     child: ListTile(
-//                       title: Text('Lezione ${index + 1}', style: const TextStyle(color: Colors.white),),
-//                       subtitle: const Text(
-//                         'Data: Data',
-//                         style: TextStyle(
-//                           fontSize: 14,
-//                           color: Colors.white
-//                         ),
-//                       ),
-//                       trailing: const Text(
-//                         'Frequentata',
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.green,
-//                           fontSize: 14
-//                         ),
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class TrainingBooking {
-//   final String date;
-//   final String status;
-
-//   TrainingBooking({ required this.date, required this.status });
-// }
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:love_notes/model/app_user.dart';
+import '../services/user_repository.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final authUser = FirebaseAuth.instance.currentUser!;
+    final repo = UserRepository();
 
     return Scaffold(
       appBar: AppBar(
@@ -216,8 +23,89 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
-      body: Center(
-        child: Text('Ciao ${user?.email ?? user?.uid ?? ""} 💛'),
+      body: StreamBuilder<AppUser?>(
+        stream: repo.watchUser(authUser.uid),
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final user = snap.data;
+
+          // Se per qualche motivo il doc non esiste ancora
+          if (user == null) {
+            return Center(
+              child: Text('Ciao ${authUser.email ?? authUser.uid} 💛'),
+            );
+          }
+
+          final name = (user.displayName?.trim().isNotEmpty ?? false)
+              ? user.displayName!.trim()
+              : (user.email ?? user.uid);
+
+          final lastLogin = user.lastLoginAt != null
+              ? DateFormat('dd/MM/yyyy HH:mm').format(user.lastLoginAt!)
+              : null;
+
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        // CircleAvatar(
+                        //   radius: 22,
+                        //   backgroundImage: (user.photoUrl != null &&
+                        //           user.photoUrl!.isNotEmpty)
+                        //       ? NetworkImage(user.photoUrl!)
+                        //       : null,
+                        //   child: (user.photoUrl == null ||
+                        //           user.photoUrl!.isEmpty)
+                        //       ? const Icon(Icons.person)
+                        //       : null,
+                        // ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Ciao $name 💛',
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 6),
+                              Text(user.email ?? '',
+                                  style: const TextStyle(fontSize: 13)),
+                              if (lastLogin != null) ...[
+                                const SizedBox(height: 4),
+                                Text('Ultimo accesso: $lastLogin',
+                                    style: const TextStyle(fontSize: 12)),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      'Qui poi mettiamo la lista delle note condivise 🙂',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

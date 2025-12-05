@@ -26,6 +26,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Love Notes',
       theme: ThemeData(useMaterial3: true),
       home: const AuthGate(),
