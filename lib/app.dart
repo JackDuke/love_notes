@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'pages/login_page.dart';
-import 'pages/notes_page.dart';
+import 'package:love_notes/auth/auth_guard.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -9,17 +7,13 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Love Notes',
-      theme: ThemeData(useMaterial3: true),
       debugShowCheckedModeBanner: false,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snap) {
-          final user = snap.data;
-          if (user == null) return const LoginPage();
-          return const NotesPage();
-        },
+      title: 'Noi Due',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink), // Un po' di tema romantico
+        useMaterial3: true,
       ),
+      home: const AuthGuard(),
     );
   }
 }

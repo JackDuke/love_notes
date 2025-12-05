@@ -2,7 +2,7 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:love_notes/auth/auth.dart';
+import 'package:love_notes/auth/auth_guard.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
       backgroundColor: Colors.black,
       screenFunction: () async {
-        return const Auth();
+        return const AuthGuard();
       },
       splashIconSize: 250,
       duration: 3000,

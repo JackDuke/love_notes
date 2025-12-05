@@ -1,197 +1,140 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-import 'package:love_notes/custom/custom_alert_dialog.dart';
-import 'package:love_notes/model/firestore_user.dart';
-import 'package:love_notes/model/lesson.dart';
-import 'package:love_notes/services/lesson_service.dart';
-
-// import 'package:timezone/data/latest.dart' as tz;
-// import 'package:timezone/timezone.dart' as tz;
 
 class HomePage extends StatefulWidget {
-  final FirestoreUser user;
-  const HomePage({
-    required this.user,
-    super.key
-  });
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  // Lista filtrata degli utenti
-  List<Lesson> lessons = [];
+  // Riferimento alla collezione nel database
+  final CollectionReference notesCollection = FirebaseFirestore.instance.collection('notes');
+  final TextEditingController _controller = TextEditingController();
+  
+  String _welcomeMessage = "";
+
+  // Database locale di frasi carine (poi potremo spostarlo su Firebase)
+  final List<String> _frasiCarine = [
+    "Oggi ti trovo meravigliosa/o!",
+    "Ricordati che sei speciale.",
+    "Non vedo l'ora di vederti.",
+    "Sei il mio pensiero preferito.",
+    "Grazie di esserci."
+  ];
 
   @override
   void initState() {
     super.initState();
-    // tz.initializeTimeZones();
-    fetchLessons();
+    // Logica per scegliere una frase random all'avvio
+    _welcomeMessage = _frasiCarine[Random().nextInt(_frasiCarine.length)];
+    
+    // Mostriamo la frase con un piccolo ritardo o in un dialog (qui uso un SnackBar dopo il build)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("❤️ $_welcomeMessage"),
+          backgroundColor: Colors.pinkAccent,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    });
   }
 
-  void fetchLessons() async {
-    final fetchedLessons = await LessonService().getLessons(widget.user.userId);
+  String _getNomeUtente() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user?.email == "paolo.cecca96@gmail.com") return "Paolo"; // Metti il tuo nome/email vera
+    if (user?.email == "laura.tortorici1995@gmail.com") return "Laura"; // Metti il suo nome/email vera
+    return "Anonymous";
+  }
 
-    if (mounted) {
-      setState(() {
-        lessons = fetchedLessons;
+  // Funzione per aggiungere una nota
+  void _addNote() {
+    if (_controller.text.isNotEmpty) {
+      notesCollection.add({
+        'testo': _controller.text,
+        'data': Timestamp.now(),
+        'autore': _getNomeUtente(), // <--- ORA È DINAMICO!
+        'uid': FirebaseAuth.instance.currentUser?.uid, // Salviamo anche l'ID tecnico per sicurezza
       });
+      _controller.clear();
+      Navigator.of(context).pop();
     }
+  }
+
+  // Dialog per scrivere
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Cosa vuoi dirmi?"),
+        content: TextField(
+          controller: _controller,
+          decoration: const InputDecoration(hintText: "Scrivi qui..."),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Annulla")),
+          ElevatedButton(onPressed: _addNote, child: const Text("Salva")),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      // drawer: const Drawer(),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Ciao ${widget.user.name}!', 
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(12)
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.logout_rounded, 
-                        color: Colors.white,
-                      ), 
-                      onPressed: () => showDialog<String>(
-                        context: context,
-                        builder: (BuildContext context) => CustomAlertDialog(
-                          title: 'Logout',
-                          message: 'Sei sicuro di voler effettuare il logout?',
-                          onPressed: () {
-                            if (mounted) {
-                              FirebaseAuth.instance.signOut();
-                              Navigator.pop(context, 'Sì');
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 101, 10, 10),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '${lessons.length}',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 120),
-                  const Flexible(
-                    child: Text(
-                      'Lezioni usate',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 50),
-              // Upcoming trainings section
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Storico lezioni',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: lessons.length,
-                itemBuilder: (context, index) {
-                  // final lesson = lessons[index];
-                  
-                  // final romeTimeZone = tz.getLocation('Europe/Rome');
-                  // final romeDate = tz.TZDateTime.from(lesson.date, romeTimeZone);
-                  
-                  // final formattedDate = DateFormat('dd/MM/yyyy').format(romeDate);
-
-                  return Card(
-                    color: Colors.grey[900],
-                    child: ListTile(
-                      title: Text('Lezione ${index + 1}', style: const TextStyle(color: Colors.white),),
-                      subtitle: const Text(
-                        'Data: Data',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white
-                        ),
-                      ),
-                      trailing: const Text(
-                        'Frequentata',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                          fontSize: 14
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text("Note ❤️"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => FirebaseAuth.instance.signOut(), // <--- LOGOUT
           ),
-        ),
+        ],
+      ),
+      body: StreamBuilder(
+        // StreamBuilder ascolta il DB in tempo reale
+        stream: notesCollection.orderBy('data', descending: true).snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            // Stampiamo l'errore in console per sicurezza
+            print("ERRORE FIREBASE: ${snapshot.error}"); 
+            // Mostriamolo anche a schermo
+            return Center(child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text("Errore: ${snapshot.error}"),
+            ));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+
+          final data = snapshot.requireData;
+
+          return ListView.builder(
+            itemCount: data.size,
+            itemBuilder: (context, index) {
+              var nota = data.docs[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ListTile(
+                  title: Text(nota['testo']),
+                  // Formattazione data semplice
+                  subtitle: Text(nota['data'].toDate().toString().substring(0, 16)), 
+                  leading: const Icon(Icons.favorite, color: Colors.redAccent),
+                ),
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddDialog,
+        child: const Icon(Icons.add),
       ),
     );
   }
-}
-
-class TrainingBooking {
-  final String date;
-  final String status;
-
-  TrainingBooking({ required this.date, required this.status });
 }
